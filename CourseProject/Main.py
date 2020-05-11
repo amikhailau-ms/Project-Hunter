@@ -97,17 +97,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.hashFile != "":
             self.save_transits_to_file()
         self.clear_graph(rebuild=False)
+        self.detrended_all_flux = []
+        self.folded_all_time = []
         fileName, _ = QFileDialog.getOpenFileName(self, "Open light curve file",
                                                "c:\\", "Fits kepler files (*.fits)")
         if fileName:
             with fits.open(fileName) as hdu_list:
                 light_curve = hdu_list["LIGHTCURVE"].data
-
             match = re.search("kplr[0-9]{9}", fileName)
             self.kepID = ""
             if match:
                 self.kepID = match[0][4:]
-
             self.all_time = light_curve.TIME
             self.all_flux = light_curve.PDCSAP_FLUX
 
@@ -204,12 +204,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.isFolded = False
         self.offsetText.setText("")
         self.periodText.setText("")
+        self.detrendCheck.setChecked(False)
+        self.actionDetrend.setChecked(False)
         for index in range(self.maxTransitLines):
             self.presentLines[index] = False
         self.firstTransitSet = False
         self.firstLineAdded = False
         self.secondLinesSet = False
         self.foldButton.setVisible(False)
+        self.foldButton.setText("Fold graph")
         if rebuild:
             self.rebuild_plot()
 
